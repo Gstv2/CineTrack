@@ -1,19 +1,18 @@
 from flask import jsonify
 from flask import Flask, render_template, flash, request, redirect, url_for, session
-# from sqlalchemy import create_engine
-# from sqlalchemy.orm import sessionmaker
-# from sqlalchemy.inspection import inspect
-# from functools import wraps
-# from models.User import Base, User
-# from models.Filmes import Base, Filmes
-# from models.preferencias import Base, Preferencia
-# from models.avaliacao import Base, Avaliacao
-# from urllib.parse import quote_plus
-# import os
+from sqlalchemy.inspection import inspect
+from functools import wraps
+from models.base import Base, engine
+from models.User import Base, User
+from models.Filmes import Base, Filmes
+from models.preferencias import Base, Preferencia
+from models.avaliacao import Base, Avaliacao
+import os
 
 # # Resto do código sem importações circulares
 app = Flask(__name__)
 app.static_folder = 'static'
+Base.metadata.create_all(engine)
 
 # app.secret_key = os.urandom(24)
 # password = quote_plus("ted@20242")
@@ -47,15 +46,15 @@ app.static_folder = 'static'
 #         if 'user_email' not in session:
 #             return redirect('/home')
 #         return # Rota para a página inicial (home)
-@app.route('/home')
-def home():
-    return render_template("index.html")
-#     return decorated_function
-
-# Rota para a página inicial
 @app.route('/')
 def index():
-    return redirect('/home')
+    return render_template("index.html")
+#     return decorated_function
+@app.route('/home')
+def home():
+    return render_template("home.html")
+#     return decorated_function
+
 
 # # Rota para fazer logout
 # @app.route('/logout')

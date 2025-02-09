@@ -6,6 +6,8 @@ class Preferencia(Base):
     __tablename__ = 'preferencias'
 
     id = Column(Integer, primary_key=True)
-    usuario_id = Column(Integer, ForeignKey('usuarios.id'), nullable=False)
+    usuario_id = Column(String(100), ForeignKey('user.email'), nullable=False)
     genero = Column(String(50), nullable=False, index=True)
-    usuario = relationship('Usuario', back_populates='preferencias')
+    usuario = relationship('User', back_populates='preferencia')
+
+

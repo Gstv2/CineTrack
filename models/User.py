@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, Boolean
-from sqlalchemy.orm import Session
-from .base import Base
-from .database import db_session  # Certifique-se de que esta importação está correta
+from sqlalchemy.orm import relationship
+from .base import Base, db_session
+
 
 class User(Base):
     __tablename__ = 'user'
@@ -10,6 +10,9 @@ class User(Base):
     nome = Column(String(50), nullable=False)
     admin = Column(Boolean, nullable=True)
     senha = Column(String(255), nullable=False)  # A senha deve ser armazenada como hash
+
+    preferencia = relationship('Preferencia', back_populates='usuario')
+    avaliacoes = relationship('Avaliacao', back_populates='usuario')
 
     def __repr__(self):
         return f'<User {self.nome}>'
@@ -25,6 +28,7 @@ def login(email: str, senha: str):
 
 # Função para logout (Simples, pois geralmente o logout é feito no front-end)
 def logout():
+    db_session.pop('user_email', None)
     return "Usuário deslogado!"
 
 

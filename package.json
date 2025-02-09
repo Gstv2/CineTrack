@@ -19,5 +19,8 @@
   "homepage": "https://github.com/Gstv2/CineTrack#readme",
   "devDependencies": {
     "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "cinetrack": "file:"
   }
 }
