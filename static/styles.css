@@ -50,3 +50,18 @@ body {
 footer {
     margin-top: auto; /* Isso empurra o footer para o fundo da tela */
 }
+
+    /* Estilo para o botão de remover filme */
+    .btn-remover {
+        background-color: #E74C3C;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 10px;
+    }
+
+    .btn-remover:hover {
+        background-color: #C0392B;
+    }

@@ -6,7 +6,7 @@
     body {
         display: flex;
         flex-direction: column;
-        min-height: 120vh;
+        min-height: 150vh;
     }
     .container {
         flex: 1;
@@ -187,8 +187,9 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div>
-
+        
         <!-- Filmes -->
         <div class="col-md-9">
             <h3>Filmes</h3>
@@ -230,6 +231,11 @@
                                             </div>
                                         </div>
                                         <button type="submit" class="btn btn-primary">Avaliar</button>
+                                        {% if user.admin %}
+                                        <form action="{{ url_for('remover_filme', filme_id=filme.id) }}" method="POST">
+                                            <button type="submit" class="btn btn-remover">Remover Filme</button>
+                                        </form>
+                                        {% endif %}
                                     </form>
                                 </div>
                             </div>
@@ -241,5 +247,4 @@
         </div>
 </div>
 
-{% endif %}
 {% endblock %}

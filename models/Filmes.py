@@ -90,22 +90,3 @@ def buscarFilmesPorNome(nome: str):
     check_tables_exist(engine)
     filmes = db_session.query(Filmes).filter(Filmes.nome.like(f'%{nome}%')).all()
     return filmes
-
-# Função para atualizar informações de um filme
-def atualizarFilme(filme_id: int, nome: str = None, descricao: str = None, ano: int = None, genero: str = None, classificacao: float = None):
-    check_tables_exist(engine)
-    filme = db_session.query(Filmes).filter_by(id=filme_id).first()
-    if filme:
-        if nome:
-            filme.nome = nome
-        if descricao:
-            filme.descricao = descricao
-        if ano:
-            filme.ano = ano
-        if genero:
-            filme.genero = genero
-        if classificacao is not None:  # Permite que a classificação seja atualizada, incluindo 0
-            filme.classificacao = classificacao
-        db_session.commit()
-        return filme
-    return "Filme não encontrado."
