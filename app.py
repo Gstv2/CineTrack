@@ -1,149 +1,125 @@
 from flask import jsonify
-from flask import Flask, render_template, flash, request, redirect, url_for, session
+from flask import Flask, render_template, flash, request, redirect, url_for
 from sqlalchemy.inspection import inspect
 from functools import wraps
-from models.base import Base, engine
-from models.User import Base, User
-from models.Filmes import Base, Filmes
-from models.preferencias import Base, Preferencia
-from models.avaliacao import Base, Avaliacao
+from models.base import *
+from models.User import *
+from models.Filmes import *
+from models.preferencias import *
+from models.avaliacao import *
 import os
 
 # # Resto do código sem importações circulares
 app = Flask(__name__)
 app.static_folder = 'static'
-Base.metadata.create_all(engine)
+app.secret_key = os.urandom(24)
 
-# app.secret_key = os.urandom(24)
-# password = quote_plus("ted@20242")
-# engine = create_engine(f"mysql://user06:{password}@139.144.26.210:3306/db_equipe09")
-   
-# # Remova o decorator @check_tables_exist desta linha
-# def check_tables_exist(engine):
-#     insp = inspect(engine)
-#     table_names = insp.get_table_names()
-
-#     # Lista de nomes de tabelas que você espera existir
-#     expected_tables = ['KanbanBoards', 'Kanbancard','user']
-
-#     for table_name in expected_tables:
-#         if table_name not in table_names:
-#             # Vincule os modelos ao engine  
-#             Base.metadata.create_all(engine)
-#             print("Tabelas foram criadas com sucesso!")
-#             return False
-
-#     return True
-
-
-# Session = sessionmaker(bind=engine)
-# db_session = Session()
-
-# # Decorador para verificar o login
-# def login_required(f):
-#     @wraps(f)
-#     def decorated_function(*args, **kwargs):
-#         if 'user_email' not in session:
-#             return redirect('/home')
-#         return # Rota para a página inicial (home)
 @app.route('/')
 def index():
-    return render_template("index.html")
-#     return decorated_function
+    return redirect('login')
+
+# Decorador para verificar o login
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_email' not in session:
+            return redirect('/')
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/home')
+@login_required
 def home():
-    return render_template("home.html")
-#     return decorated_function
+    filmes_recentes = db_session.query(Filmes).order_by(Filmes.created_at.desc()).limit(10).all()
+    filmes = listarFilmes()
+    
+    # Buscar filmes por gênero
+    generos = db_session.query(Filmes.genero).distinct().all()
+    filmes_por_genero = {
+        genero[0]: db_session.query(Filmes).filter(Filmes.genero == genero[0]).limit(10).all()
+        for genero in generos
+    }
+    user = buscarUser()
+    return render_template("home.html", user=user,filmes = filmes, filmes_recentes=filmes_recentes, filmes_por_genero=filmes_por_genero)
+
+@app.route('/login')
+def login():
+    return render_template("login.html") 
+
+@app.route('/register')
+def register():
+    return render_template("register.html") 
+
+@app.route('/criar_user', methods=['GET', 'POST'])
+def criar_user():
+    if request.method == 'POST':
+        nome = request.form['nome']
+        email = request.form['email']   
+        senha = request.form['senha']
+
+        # Chamar a função para adicionar o usuário
+        adicionarUser(email=email, nome=nome, senha=senha)
+
+        return redirect(url_for('home'))  # Redireciona para a página inicial após a criação
+
+    return render_template('home.html')  # Exibe o formulário para criação
 
 
-# # Rota para fazer logout
-# @app.route('/logout')
-# @login_required
-# def logout():
-#     session.pop('user_email', None)
-#     return redirect('/home')
+@app.route('/fazer_login', methods=['POST'])
+def fazer_login():
+    if request.method == 'POST':
+        email = request.form['email']
+        senha = request.form['senha']
+        loginUser(email, senha)
+
+        return redirect(url_for('home'))  # Redireciona para a página inicial após a criação
+
+    return render_template('home.html')  # Exibe o formulário para criação
+
+@app.route('/fazer_logout')
+@login_required
+def fazer_logout():
+    logoutUser()  # Remove o id do usuário da sessão
+    return redirect(url_for('login'))  # Redireciona para a página inicial após a criação
 
 
+@app.route('/Filmes')
+@login_required
+def filmes():
+    user = buscarUser()
+    filmes = listarFilmes()
+    # Filmes = listarFilmes()
+    return render_template("Filmes.html", user=user, filmes=filmes) 
 
-# # Rota para a página inicial (contato)
-# @app.route('/contato')
-# def contato():
-#     if check_tables_exist(engine):
-#         return "Falha na criação das tabelas!"
-#     return render_template("contato.html")
+@app.route('/adicionar_filme', methods=['POST'])
+@login_required
+def adicionar_filme():
+    nome = request.form['nome']
+    descricao = request.form['descricao']
+    ano = request.form['ano']
+    genero = request.form['genero']
+    imagem = request.files.get('imagem')  # Obtenha o arquivo de imagem
 
-# # Rota para o login
-# @app.route('/login', methods=['GET', 'POST'])
-# def login():
-#     if check_tables_exist(engine):
-#         return "Falha na criação das tabelas!"
-#     else:
-#         if request.method == 'POST':
-#             email = request.form['email']
-#             senha = request.form['senha']
-#             try:
-#                 user = db_session.query(User).filter_by(email=email, senha=senha).first()
-#                 if user:
-#                     session['user_email'] = user.email
-#                     db_session.commit()  # Commit a transação bem-sucedida
-#                     return redirect('/interative')
-#                 else:
-#                     mensagem_erro = 'E-mail ou senha incorretos. Verifique suas credenciais.'
-#                     return render_template('login.html', mensagem_erro=mensagem_erro)
-#             except Exception as e:
-#                 db_session.rollback()  # Rollback em caso de erro
-#                 mensagem_erro = 'Ocorreu um erro ao efetuar o login.'
-#                 return render_template('login.html', mensagem_erro=mensagem_erro)
+    adicionarFilme(nome, descricao, ano, genero, imagem)
+    return redirect(url_for('Filmes'))
 
-#         return render_template("login.html")
+@app.route('/filtrar_filmes', methods=['POST'])
+@login_required
+def filtrar_filmes():
+    user = buscarUser()
+    generos = request.form.getlist("genero")  # Pega os gêneros marcados no formulário
+    nome_filme = request.form.get("nome", "").strip()  # Nome do filme (caso tenha um input de nome)
+
+    if generos and "todos" not in generos:
+        filmes_filtrados = buscarFilmesPorGenero(generos)
+    elif nome_filme:
+        filmes_filtrados = buscarFilmesPorNome(nome_filme)
+    else:
+        filmes_filtrados = listarFilmes()  # Se nada for passado, lista todos
+
+    return render_template("Filmes.html", filmes=filmes_filtrados, user=user)
 
 
-# # Rota para o registro de usuários
-# @app.route("/register", methods=['GET', 'POST'])
-# def register():
-#     if check_tables_exist(engine):
-#         return "Falha na criação das tabelas!"
-#     else:
-#         if request.method == 'POST':
-#             nome = request.form['nome']
-#             telefone = request.form['telefone']
-#             email = request.form['email']
-#             senha = request.form['senha']
-#             try:
-#                 new_user = User(email=email, telefone=telefone, nome=nome, senha=senha)
-#                 db_session.add(new_user)
-#                 db_session.commit()
-#                 session['user_email'] = new_user.email
-#                 return redirect('/interative')
-#             except Exception as e:
-#                 db_session.rollback()
-#                 mensagem_erro = 'Usuário já existente.'
-#                 return render_template('register.html', mensagem_erro=mensagem_erro)
-
-#         return render_template("register.html")
-
-# @app.route('/interative')
-# @login_required
-# def interative():
-#     if check_tables_exist(engine):
-#         return "Falha na criação das tabelas!"
-#     else:
-#         user_email = session['user_email']
-#         # Abra uma nova sessão para esta visualização
-#         db_session = Session()
-        
-#         try:
-#             user = db_session.query(User).filter_by(email=user_email).first()
-#             kanban = db_session.query(KanbanBoard).filter_by(user=user).first()
-
-#             # Use uma consulta para filtrar as telas com base no email do usuário
-#             telas = db_session.query(KanbanBoard).filter_by(user=user).all()
-
-#             return render_template("interative.html", user=user.email, kanban=kanban, telas=telas)
-#         except Exception as e:
-#             # Lide com exceções, se necessário
-#             db_session.rollback()
-#             return "Erro: " + str(e)
 
 # # Função para adicionar um novo KanbanBoard
 # @app.route('/adicionar_kanban', methods=['POST'])

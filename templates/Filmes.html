@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Estilos para o footer fixo no fundo da tela */
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 120vh;
+    }
+    .container {
+        flex: 1;
+    }
+    footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: #2C3E50;
+        color: white;
+        text-align: center;
+        padding: 10px 0;
+    }
+    
+    .rating {
+        direction: rtl;
+        display: inline-block;
+    }
+
+    .rating input[type="radio"] {
+        display: none;
+    }
+
+    .rating label {
+        color: #ddd;
+        font-size: 24px;
+        padding: 0;
+        cursor: pointer;
+    }
+
+    .rating input[type="radio"]:checked ~ label {
+        color: gold;
+    }
+
+    /* Estilo para o botão de remover filme */
+    .btn-remover {
+        background-color: #E74C3C;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 10px;
+    }
+
+    .btn-remover:hover {
+        background-color: #C0392B;
+    }
+    .btn-add {
+        background-color: #00b530;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 10px;
+    }
+
+    .btn-add:hover {
+        background-color: #2eef61;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Lateral com Gêneros -->
+        <div class="col-md-3">
+            <h3>Gêneros</h3>
+            <form class="list-group" action="/filtrar_filmes" method="POST">
+                <input name="nome" class="form-control me-2" type="text" placeholder="Buscar filmes...">
+                <hr>
+                <li class="list-group-item">
+                    <input type="checkbox" id="todos" name="genero" value="todos">
+                    <label for="todos">Todos</label>
+                </li>
+                <li class="list-group-item">
+                    <input type="checkbox" id="acao" name="genero" value="acao">
+                    <label for="acao">Ação</label>
+                </li>
+                <li class="list-group-item">
+                    <input type="checkbox" id="aventura" name="genero" value="aventura">
+                    <label for="aventura">Aventura</label>
+                </li>
+                <li class="list-group-item">
+                    <input type="checkbox" id="comedia" name="genero" value="comedia">
+                    <label for="comedia">Comédia</label>
+                </li>
+                <li class="list-group-item">
+                    <input type="checkbox" id="drama" name="genero" value="drama">
+                    <label for="drama">Drama</label>
+                </li>
+                <li class="list-group-item">
+                    <input type="checkbox" id="ficcao" name="genero" value="ficcao">
+                    <label for="ficcao">Ficção Científica</label>
+                </li>
+                <li class="list-group-item">
+                    <input type="checkbox" id="terror" name="genero" value="terror">
+                    <label for="terror">Terror</label>
+                </li>
+                <li class="list-group-item">
+                    <input type="checkbox" id="romance" name="genero" value="romance">
+                    <label for="romance">Romance</label>
+                </li>
+                <li class="list-group-item">
+                    <input type="checkbox" id="animacao" name="genero" value="animacao">
+                    <label for="animacao">Animação</label>
+                </li>
+                <li class="list-group-item">
+                    <input type="checkbox" id="documentario" name="genero" value="documentario">
+                    <label for="documentario">Documentário</label>
+                </li>
+                <li class="list-group-item">
+                    <input type="checkbox" id="faroeste" name="genero" value="faroeste">
+                    <label for="faroeste">Faroeste</label>
+                </li>
+                <li class="list-group-item">
+                    <input type="checkbox" id="suspense" name="genero" value="suspense">
+                    <label for="suspense">Suspense</label>
+                </li>
+                <button class="btn btn-add" type="submit">Filtrar</button>
+            </form>
+            <hr>
+
+            {% if user.admin %}
+            <!-- Botão para abrir o modal -->
+            <button href="/adicionar_Filmes" type="button" class="btn btn-add" data-toggle="modal" data-target="#adicionarFilmeModal">
+                Adicionar Filme
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="adicionarFilmeModal" tabindex="-1" role="dialog" aria-labelledby="adicionarFilmeModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="adicionarFilmeModalLabel">Adicionar Filme</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Formulário para adicionar o filme -->
+                            <form action="/adicionar_filme" method="POST" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <label for="nome">Titulo:</label>
+                                    <input type="text" class="form-control" id="nome" name="nome" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="descricao">Sinopse:</label>
+                                    <textarea class="form-control" id="descricao" name="descricao" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ano">Ano:</label>
+                                    <input type="date" class="form-control" id="ano" name="ano" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="genero">Gênero:</label>
+                                    <select class="form-control" id="genero" name="genero" required>
+                                        <option value="acao">Ação</option>
+                                        <option value="aventura">Aventura</option>
+                                        <option value="comedia">Comédia</option>
+                                        <option value="drama">Drama</option>
+                                        <option value="ficcao">Ficção Científica</option>
+                                        <option value="terror">Terror</option>
+                                        <option value="romance">Romance</option>
+                                        <option value="animacao">Animação</option>
+                                        <option value="documentario">Documentário</option>
+                                        <option value="faroeste">Faroeste</option>
+                                        <option value="suspense">Suspense</option>
+                                    </select>                                    
+                                </div>
+                                <div class="form-group">
+                                    <label for="imagem">Imagem:</label>
+                                    <input type="file" class="form-control-file" id="imagem" name="imagem" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Adicionar Filme</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filmes -->
+        <div class="col-md-9">
+            <h3>Filmes</h3>
+            <div class="row">
+                {% for filme in filmes %}
+                    <div class="col-md-2 mb-2">
+                        <div class="card">
+                            <!-- A imagem ocupa toda a área do card -->
+                            <a href="#" data-toggle="modal" data-target="#modalFilme{{ filme.id }}">
+                                <img src="{{ filme.imagem }}" class="card-img-top" alt="{{ filme.nome }}">
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Modal de especificações do filme -->
+                    <div class="modal fade" id="modalFilme{{ filme.id }}" tabindex="-1" role="dialog" aria-labelledby="modalFilmeLabel{{ filme.id }}" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <img src="{{ filme.imagem }}" class="card-img-top" alt="{{ filme.nome }}">
+                                </div>
+                                <div class="modal-body">    
+                                    <p><strong>Titulo:</strong> {{ filme.nome }}</p>
+                                    <p><strong>Sinopse:</strong> {{ filme.descricao }}</p>
+                                    <p><strong>Ano Lançado:</strong> {{ filme.ano }}</p>
+                                    <p><strong>Gênero:</strong> {{ filme.genero }}</p>
+                                    
+                                    <!-- Sistema de avaliação com estrelas -->
+                                    <h5>Avaliação:</h5>
+                                    <form action="/avaliar_filme/{{ filme.id }}" method="POST">
+                                        <div class="form-group">
+                                            <label for="avaliacao">Avaliar filme:</label>
+                                            <div class="rating">
+                                                <input type="radio" name="rating" value="5" id="star5{{ filme.id }}"><label for="star5{{ filme.id }}">★</label>
+                                                <input type="radio" name="rating" value="4" id="star4{{ filme.id }}"><label for="star4{{ filme.id }}">★</label>
+                                                <input type="radio" name="rating" value="3" id="star3{{ filme.id }}"><label for="star3{{ filme.id }}">★</label>
+                                                <input type="radio" name="rating" value="2" id="star2{{ filme.id }}"><label for="star2{{ filme.id }}">★</label>
+                                                <input type="radio" name="rating" value="1" id="star1{{ filme.id }}"><label for="star1{{ filme.id }}">★</label>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Avaliar</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+</div>
+
+{% endif %}
+{% endblock %}
