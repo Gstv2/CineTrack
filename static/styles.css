@@ -1,7 +1,56 @@
 /* Ajustes para o carrossel */
 
+form.d-flex.ms-auto input {
+    width: 400px; /* Ajuste conforme necessário */
+    max-width: 100%; /* Para responsividade */
+    font-size: 16px;
+    padding: 8px 12px;
+}
+
+
+.navbar-brand {
+    position: relative;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ECF0F1; /* Cinza Claro */
+    text-decoration: none;
+    padding: 8px 12px;
+    transition: color 0.3s ease-in-out;
+}
+.navbar-brand-recomenda {
+    position: relative;
+    font-size: 18px;
+    font-weight: bold;
+    color: #bb0000; /* Cinza Claro */
+    text-decoration: none;
+    padding: 8px 12px;
+    transition: color 0.3s ease-in-out;
+}
+
+.navbar-brand:hover {
+    color: #E74C3C; /* Vermelho */
+}
+
+.navbar-brand::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -4px;
+    width: 0;
+    height: 2px;
+    background-color: #E74C3C; /* Vermelho */
+    transition: width 0.3s ease-in-out, left 0.3s ease-in-out;
+}
+
+.navbar-brand:hover::after {
+    width: 100%;
+    left: 0;
+}
+
+
+
 .carousel {
-    margin-top: 0; /* Garante que não há margem extra */
+    margin-top: 0rem; /* Garante que não há margem extra */
     padding-top: 0; /* Remove qualquer espaçamento */
     position: relative;
     top: 0; /* Garante que ele fique colado no topo */
@@ -11,7 +60,7 @@
     height: 100%;
 }
 .carousel-item img {
-    height: 500px;
+    height: 600px;
     object-fit: cover;
 }
 
@@ -38,11 +87,13 @@
 
 /* Ajuste para o footer ficar no final */
 html, body {
+    background-color: #252525;
     height: 100%;
     margin: 0;
 }
 
 body {
+    color: #bb0000;
     display: flex;
     flex-direction: column;
 }
@@ -51,17 +102,32 @@ footer {
     margin-top: auto; /* Isso empurra o footer para o fundo da tela */
 }
 
-    /* Estilo para o botão de remover filme */
-    .btn-remover {
-        background-color: #E74C3C;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        cursor: pointer;
-        font-size: 16px;
-        margin-top: 10px;
-    }
+/* Estilo para o botão de remover filme */
+.btn-remover {
+    background-color: #E74C3C;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
 
-    .btn-remover:hover {
-        background-color: #C0392B;
-    }
+.btn-remover:hover {
+    background-color: #C0392B;
+}
+
+/* Estilo para o botão de remover filme */
+.btn-avaliar {
+    background-color: #0034dd;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.btn-avaliar:hover {
+    background-color: #0027a9;
+}

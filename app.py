@@ -1,6 +1,4 @@
-from flask import jsonify
 from flask import Flask, render_template, flash, request, redirect, url_for
-from sqlalchemy.inspection import inspect
 from functools import wraps
 from models.base import *
 from models.User import *
@@ -42,8 +40,13 @@ def home():
     user = buscarUser()
     filmes_recomendados = recomendar_filme()
     preferences = recomendarFilmes(user.email)
+    preferences_id = listaPreferencias(user.email)
+    combined_preferences = [
+        {"preference": preference, "preference_id": preference_id}
+        for preference, preference_id in zip(preferences, preferences_id)
+    ]
 
-    return render_template("home.html", preferences = preferences, filmes_recomendados = filmes_recomendados ,user=user,filmes = filmes, filmes_recentes=filmes_recentes, filmes_por_genero=filmes_por_genero)
+    return render_template("home.html", combined_preferences=combined_preferences, filmes_recomendados=filmes_recomendados, user=user, filmes=filmes, filmes_recentes=filmes_recentes, filmes_por_genero=filmes_por_genero)
 
 @app.route('/login')
 def login():
@@ -73,11 +76,11 @@ def fazer_login():
     if request.method == 'POST':
         email = request.form['email']
         senha = request.form['senha']
-        loginUser(email, senha)
-
-        return redirect(url_for('home'))  # Redireciona para a página inicial após a criação
-
-    return render_template('home.html')  # Exibe o formulário para criação
+        if loginUser(email, senha):
+            return redirect(url_for('home'))  # Redireciona para a home se o login for bem-sucedido
+        else:
+            flash("Usuário ou senha incorreta", "danger")  # Flash para exibir mensagem de erro
+            return redirect(url_for('login'))  # Redireciona de volta ao login
 
 @app.route('/fazer_logout')
 @login_required
@@ -92,7 +95,12 @@ def filmes():
     user = buscarUser()
     filmes = listarFilmes()
     preferences = recomendarFilmes(user.email)
-    return render_template("Filmes.html", user=user, filmes=filmes, preferences = preferences) 
+    preferences_id = listaPreferencias(user.email)
+    combined_preferences = [
+        {"preference": preference, "preference_id": preference_id}
+        for preference, preference_id in zip(preferences, preferences_id)
+    ]
+    return render_template("Filmes.html",combined_preferences = combined_preferences, user=user, filmes=filmes, preferences = preferences) 
 
 @app.route('/adicionar_filme', methods=['POST'])
 @login_required
@@ -110,17 +118,20 @@ def adicionar_filme():
 @login_required
 def filtrar_filmes():
     user = buscarUser()
-    generos = request.form.getlist("genero")  # Pega os gêneros marcados no formulário
-    nome_filme = request.form.get("nome", "").strip()  # Nome do filme (caso tenha um input de nome)
+    generos = request.form.getlist("genero")  
+    nome_filme = request.form.get("nome", "").strip()  
 
     if generos and "todos" not in generos:
         filmes_filtrados = buscarFilmesPorGenero(generos)
     elif nome_filme:
         filmes_filtrados = buscarFilmesPorNome(nome_filme)
     else:
-        filmes_filtrados = listarFilmes()  # Se nada for passado, lista todos
+        filmes_filtrados = listarFilmes()  
 
-    return render_template("Filmes.html", filmes=filmes_filtrados, user=user)
+    nenhum_filme = not filmes_filtrados  # Verifica se a lista está vazia
+
+    return render_template("Filmes.html", filmes=filmes_filtrados, user=user, nenhum_filme=nenhum_filme)
+
 
 # Rota para remover um filme
 @app.route('/remover_filme/<int:filme_id>', methods=['POST'])
@@ -141,7 +152,18 @@ def adicionar_preferencia():
     adicionarPreferencias(user.email, genero)
 
     # Após adicionar a preferência, você pode redirecionar para a página desejada ou retornar um JSON
-    return redirect(url_for('home'))  # Redireciona para a página inicial ou outra página
+    return redirect(request.referrer) # Redireciona para a página inicial ou outra página
+
+@app.route('/remover_preferencia/<int:preferencia_id>', methods=['POST'])
+@login_required
+def remover_preferencia(preferencia_id):
+    # Tente remover a preferência com o id fornecido
+    if removerPreferencia(preferencia_id):
+        flash(f"Preferência {preferencia_id} removida com sucesso.", "success")
+    else:
+        flash("Preferência não encontrada.", "danger")
+    
+    return redirect(request.referrer)  # Redireciona para a página principal
 
 
 
@@ -151,7 +173,10 @@ def recomendar_filme():
     user = buscarUser()
     generos_preferidos = [preferencia.genero for preferencia in listaPreferencias(user.email)]
     filmes_recomendados = db_session.query(Filmes).filter(Filmes.genero.in_(generos_preferidos)).all()
+
     return filmes_recomendados
+
+
 
 
 if __name__ == '__main__':

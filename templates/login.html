@@ -11,6 +11,16 @@
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4" style="max-width: 400px; width: 100%;">
             <h2 class="text-center mb-4">Login</h2>
+            <!-- Exibir mensagens flash -->
+            {% with messages = get_flashed_messages(with_categories=True) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} text-center" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
             <form method="POST" action="/fazer_login">
                 <div class="mb-3">
                     <label for="emailLogin" class="form-label">E-mail:</label>
