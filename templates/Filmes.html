@@ -223,8 +223,10 @@
                                         <p><strong>Ano Lançado:</strong> {{ filme.ano }}</p>
                                         <p><strong>Gênero:</strong> {{ filme.genero }}</p>
                                         
-                                        <!-- Sistema de avaliação com estrelas -->
-                                        <h5>Avaliação:</h5>
+                                        <!-- Exibir a média das avaliações -->
+                                        <p><strong>Média das Avaliações:</strong> {{ filme.classificacao }} / 5</p>
+
+                                        <!-- Formulário para avaliar o filme -->
                                         <form action="/avaliar_filme/{{ filme.id }}" method="POST">
                                             <div class="form-group">
                                                 <label for="avaliacao">Avaliar filme:</label>
@@ -237,11 +239,6 @@
                                                 </div>
                                             </div>
                                             <button type="submit" class="btn btn-avaliar">Avaliar</button>
-                                            {% if user.admin %}
-                                            <form action="{{ url_for('remover_filme', filme_id=filme.id) }}" method="POST">
-                                                <button type="submit" class="btn btn-remover">Remover Filme</button>
-                                            </form>
-                                            {% endif %}
                                         </form>
                                     </div>
                                 </div>

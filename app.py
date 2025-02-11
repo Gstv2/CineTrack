@@ -166,7 +166,6 @@ def remover_preferencia(preferencia_id):
     return redirect(request.referrer)  # Redireciona para a página principal
 
 
-
 @app.route('/recomendar_filme', methods=['POST'])
 @login_required
 def recomendar_filme():
@@ -176,6 +175,27 @@ def recomendar_filme():
 
     return filmes_recomendados
 
+
+@app.route('/avaliar_filme/<int:filme_id>', methods=['POST'])
+@login_required
+def avaliar_filme(filme_id):
+    user = buscarUser()
+    usuario_id = user.email  # Assumindo que você usa o email para identificar o usuário
+    avaliacao = request.form.get('rating')  # Obtendo a avaliação enviada pelo usuário (de 1 a 5)
+
+    # Verifica se uma avaliação foi enviada
+    if avaliacao:
+        adicionar_avaliacao(Avaliacao, usuario_id, filme_id, int(avaliacao))
+        # Atualizar a classificação média do filme
+        filme = db_session.query(Filmes).get(filme_id)
+        if filme:
+            # Calcular a média das avaliações
+            media = obter_media_avaliacoes(Avaliacao, filme_id)
+            filme.classificacao = media  # Atualiza o atributo classificacao com a média
+            db_session.commit()
+    
+    # Redireciona para a página de onde veio (para o modal se fechar)
+    return redirect(request.referrer)
 
 
 
