@@ -1,16 +1,17 @@
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from urllib.parse import quote_plus
 from flask import session, flash
 from sqlalchemy.sql import text
 
 
+
 # Senha e configuração de conexão
 
-password = quote_plus("Lgns123!")
-engine = create_engine(f"mysql://root:{password}@127.0.0.1:3306/db_equipe09")
+password = quote_plus("user06")
+engine = create_engine(f"mysql://user06:{password}@139.144.26.210:3306/db_equipe06")
 
 # Criando a sessão para interação com o banco
 Session = sessionmaker(bind=engine)
@@ -36,12 +37,15 @@ def check_tables_exist(engine):
 
     return True
 
+
+
 # Testando a conexão com o banco de dados
 try:
     # Usando 'text' para garantir que a consulta seja executável
     with engine.connect() as connection:
         result = connection.execute(text("SELECT 1"))
         print("Conexão bem-sucedida com o banco de dados!")
+        check_tables_exist(engine)
 except Exception as e:
     print(f"Erro de conexão: {e}")
     

@@ -12,8 +12,11 @@ app = Flask(__name__)
 app.static_folder = 'static'
 app.secret_key = os.urandom(24)
 
+Base.metadata.create_all(engine)
+
 @app.route('/')
 def index():
+    check_tables_exist(engine)
     return redirect('login')
 
 # Decorador para verificar o login
@@ -25,8 +28,10 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
 @app.route('/home')
 @login_required
+
 def home():
     filmes_recentes = db_session.query(Filmes).order_by(Filmes.created_at.desc()).limit(10).all()
     filmes = listarFilmes()
@@ -49,14 +54,17 @@ def home():
     return render_template("home.html", combined_preferences=combined_preferences, filmes_recomendados=filmes_recomendados, user=user, filmes=filmes, filmes_recentes=filmes_recentes, filmes_por_genero=filmes_por_genero)
 
 @app.route('/login')
+
 def login():
     return render_template("login.html") 
 
 @app.route('/register')
+
 def register():
     return render_template("register.html") 
 
 @app.route('/criar_user', methods=['GET', 'POST'])
+
 def criar_user():
     if request.method == 'POST':
         nome = request.form['nome']
@@ -72,6 +80,7 @@ def criar_user():
 
 
 @app.route('/fazer_login', methods=['POST'])
+
 def fazer_login():
     if request.method == 'POST':
         email = request.form['email']
@@ -83,6 +92,7 @@ def fazer_login():
             return redirect(url_for('login'))  # Redireciona de volta ao login
 
 @app.route('/fazer_logout')
+
 @login_required
 def fazer_logout():
     logoutUser()  # Remove o id do usuário da sessão
@@ -90,6 +100,7 @@ def fazer_logout():
 
 
 @app.route('/Filmes')
+
 @login_required
 def filmes():
     user = buscarUser()
@@ -103,6 +114,7 @@ def filmes():
     return render_template("Filmes.html",combined_preferences = combined_preferences, user=user, filmes=filmes, preferences = preferences) 
 
 @app.route('/adicionar_filme', methods=['POST'])
+
 @login_required
 def adicionar_filme():
     nome = request.form['nome']
@@ -115,6 +127,7 @@ def adicionar_filme():
     return redirect(url_for('filmes'))
 
 @app.route('/filtrar_filmes', methods=['POST'])
+
 @login_required
 def filtrar_filmes():
     user = buscarUser()
@@ -135,6 +148,7 @@ def filtrar_filmes():
 
 # Rota para remover um filme
 @app.route('/remover_filme/<int:filme_id>', methods=['POST'])
+
 @login_required
 def remover_filme(filme_id):
     if removerFilme(filme_id):
@@ -144,6 +158,7 @@ def remover_filme(filme_id):
     return redirect(url_for('filmes'))  # Redireciona para a página principal
 
 @app.route('/adicionar_preferencia', methods=['POST'])
+
 @login_required
 def adicionar_preferencia():
     user = buscarUser()
@@ -155,6 +170,7 @@ def adicionar_preferencia():
     return redirect(request.referrer) # Redireciona para a página inicial ou outra página
 
 @app.route('/remover_preferencia/<int:preferencia_id>', methods=['POST'])
+
 @login_required
 def remover_preferencia(preferencia_id):
     # Tente remover a preferência com o id fornecido
@@ -167,6 +183,7 @@ def remover_preferencia(preferencia_id):
 
 
 @app.route('/recomendar_filme', methods=['POST'])
+
 @login_required
 def recomendar_filme():
     user = buscarUser()
@@ -177,6 +194,7 @@ def recomendar_filme():
 
 
 @app.route('/avaliar_filme/<int:filme_id>', methods=['POST'])
+
 @login_required
 def avaliar_filme(filme_id):
     user = buscarUser()

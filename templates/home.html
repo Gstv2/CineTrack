@@ -8,7 +8,7 @@
   <div class="carousel-inner">
     {% for filme in filmes_recentes[:3] %}
       <div class="carousel-item {% if loop.first %}active{% endif %}">
-        <img src="{{ filme.imagem }}" class="d-block w-100" alt="{{ filme.nome }}">
+        <img src="{{ filme.imagem }}" class="d-block w-400" alt="{{ filme.nome }}">
         <div class="container">
           <div class="carousel-caption text-start">
             <h1>{{ filme.nome }}</h1>
