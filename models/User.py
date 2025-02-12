@@ -40,7 +40,6 @@ def adicionar_admin():
 # Função para logout (Simples, pois geralmente o logout é feito no front-end)
 def logoutUser():
     check_tables_exist(engine)
-    adicionar_admin()
     session.pop('user_email', None)
 
 # Função para adicionar um usuário
@@ -55,13 +54,11 @@ def adicionarUser(email: str, nome: str, senha: str, admin: bool = False):
 
 def buscarUser():
     check_tables_exist(engine)
-    adicionar_admin()
     user = db_session.query(User).filter_by(email = session['user_email']).first()
     return user
 
 def verificarLogin():
     check_tables_exist(engine)
-    adicionar_admin()
     if session.get('user_email'):
         return True
     else:

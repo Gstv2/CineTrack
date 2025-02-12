@@ -53,14 +53,16 @@ form.d-flex.ms-auto input {
     margin-top: 0rem; /* Garante que não há margem extra */
     padding-top: 0; /* Remove qualquer espaçamento */
     position: relative;
-    top: 0; /* Garante que ele fique colado no topo */
 }
 
 .carousel-inner {
     height: 100%;
+    
 }
 .carousel-item img {
     height: 600px;
+    width: 100%; 
+    object-fit: cover;
 
 }
 

@@ -100,18 +100,34 @@ def fazer_logout():
 
 
 @app.route('/Filmes')
-
 @login_required
 def filmes():
     user = buscarUser()
-    filmes = listarFilmes()
+    # Obtendo os parâmetros da query string
+    generos = request.args.get("genero", "")
+    generos = generos.split(",") if generos else []  # Garante que seja uma lista
+    generos = [g for g in generos if g]  # Remove valores vazios
+
+    nome_filme = request.args.get("nome", "").strip()
+
+    # Aplica os filtros
+    if "todos" in generos:
+        filmes_filtrados = listarFilmes()
+    elif generos:  # Verifica se a lista de gêneros não está vazia
+        filmes_filtrados = buscarFilmesPorGenero(generos)
+    elif nome_filme:  # Se o nome for informado, faz o filtro
+        filmes_filtrados = buscarFilmesPorNome(nome_filme)
+    else:  # Caso contrário, lista todos os filmes
+        filmes_filtrados = listarFilmes()
+
+    filmes_filtrados = filmes_filtrados if filmes_filtrados else []
     preferences = recomendarFilmes(user.email)
     preferences_id = listaPreferencias(user.email)
     combined_preferences = [
         {"preference": preference, "preference_id": preference_id}
         for preference, preference_id in zip(preferences, preferences_id)
     ]
-    return render_template("Filmes.html",combined_preferences = combined_preferences, user=user, filmes=filmes, preferences = preferences) 
+    return render_template("Filmes.html", combined_preferences = combined_preferences, user=user, filmes_filtrados=filmes_filtrados, preferences = preferences) 
 
 @app.route('/adicionar_filme', methods=['POST'])
 
@@ -126,25 +142,21 @@ def adicionar_filme():
     adicionarFilme(nome, descricao, ano, genero, imagem)
     return redirect(url_for('filmes'))
 
-@app.route('/filtrar_filmes', methods=['POST'])
 
+@app.route('/filtrar_por_genero', methods=['POST'])
 @login_required
-def filtrar_filmes():
-    user = buscarUser()
-    generos = request.form.getlist("genero")  
-    nome_filme = request.form.get("nome", "").strip()  
+def filtrar_por_genero():
+    """Redireciona para a página de filmes com o filtro de gênero aplicado."""
+    generos = request.form.getlist("genero")
+    generos = [g for g in generos if g]  # Remove valores vazios, caso o campo tenha sido enviado vazio
+    return redirect(url_for("filmes", genero=",".join(generos)))  # Passa os gêneros como query string
 
-    if generos and "todos" not in generos:
-        filmes_filtrados = buscarFilmesPorGenero(generos)
-    elif nome_filme:
-        filmes_filtrados = buscarFilmesPorNome(nome_filme)
-    else:
-        filmes_filtrados = listarFilmes()  
-
-    nenhum_filme = not filmes_filtrados  # Verifica se a lista está vazia
-
-    return render_template("Filmes.html", filmes=filmes_filtrados, user=user, nenhum_filme=nenhum_filme)
-
+@app.route('/filtrar_por_nome', methods=['POST'])
+@login_required
+def filtrar_por_nome():
+    """Redireciona para a página de filmes com o filtro de nome aplicado."""
+    nome_filme = request.form.get("nome", "").strip()
+    return redirect(url_for("filmes", nome=nome_filme))  # Passa o nome como query string
 
 # Rota para remover um filme
 @app.route('/remover_filme/<int:filme_id>', methods=['POST'])

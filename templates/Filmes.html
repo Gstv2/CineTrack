@@ -76,9 +76,7 @@
         <!-- Lateral com Gêneros -->
         <div class="col-md-3">
             <h3>Gêneros</h3>
-            <form class="list-group" action="/filtrar_filmes" method="POST">
-                <input name="nome" class="form-control me-2" type="text" placeholder="Buscar filmes...">
-                <hr>
+            <form name="Filtrar" class="list-group" action="/filtrar_por_genero" method="POST">
                 <li class="list-group-item">
                     <input type="checkbox" id="todos" name="genero" value="todos">
                     <label for="todos">Todos</label>
@@ -149,7 +147,7 @@
                         </div>
                         <div class="modal-body">
                             <!-- Formulário para adicionar o filme -->
-                            <form action="/adicionar_filme" method="POST" enctype="multipart/form-data">
+                            <form name="Adicionar" action="/adicionar_filme" method="POST" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <label for="nome">Titulo:</label>
                                     <input type="text" class="form-control" id="nome" name="nome" required>
@@ -194,13 +192,13 @@
         <!-- Filmes -->
         <div class="col-md-9">
             <h3>Filmes</h3>
-            {% if nenhum_filme %}
+            {% if filmes_filtrados == [] %}
                 <div class="alert alert-warning text-center">
                     Nenhum filme encontrado.
                 </div>
             {% else %}
                 <div class="row">
-                    {% for filme in filmes %}
+                    {% for filme in filmes_filtrados %}
                         <div class="col-md-3     mb-2">
                             <div class="card">
                                 <!-- A imagem ocupa toda a área do card -->
@@ -227,7 +225,7 @@
                                         <p><strong>Média das Avaliações:</strong> {{ filme.classificacao }} / 5</p>
 
                                         <!-- Formulário para avaliar o filme -->
-                                        <form action="/avaliar_filme/{{ filme.id }}" method="POST">
+                                        <form name="Avaliar" action="/avaliar_filme/{{ filme.id }}" method="POST">
                                             <div class="form-group">
                                                 <label for="avaliacao">Avaliar filme:</label>
                                                 <div class="rating">

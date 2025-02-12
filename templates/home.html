@@ -90,23 +90,25 @@
     </div>
   </div>
 
-  <div class="container mt-4">
-    <h3>Filmes recomendados</h3>
-    <div class="d-flex flex-row overflow-auto gap-3">
-        {% for filme in filmes_recomendados[:10] %}
-            <div class="card" style="width: 12rem;">
-                <img src="{{ filme.imagem }}" class="card-img-top" alt="{{ filme.titulo }}">
-                <div class="card-body">
-                    <h5 class="card-title">{{ filme.titulo }}</h5>
-                    <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" 
-                      data-bs-target="#modalFilme{{ filme.id }}">
-                      Ver mais
-                    </a>
-                </div>
-            </div>
-        {% endfor %}
+  {% if combined_preferences %}
+    <div class="container mt-4">
+      <h3>Filmes recomendados</h3>
+      <div class="d-flex flex-row overflow-auto gap-3">
+          {% for filme in filmes_recomendados[:10] %}
+              <div class="card" style="width: 12rem;">
+                  <img src="{{ filme.imagem }}" class="card-img-top" alt="{{ filme.titulo }}">
+                  <div class="card-body">
+                      <h5 class="card-title">{{ filme.titulo }}</h5>
+                      <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" 
+                        data-bs-target="#modalFilme{{ filme.id }}">
+                        Ver mais
+                      </a>
+                  </div>
+              </div>
+          {% endfor %}
+      </div>
     </div>
-  </div>
+  {% endif %}
 
 
   {% for genero, filmes in filmes_por_genero.items() %}
