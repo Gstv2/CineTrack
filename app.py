@@ -167,7 +167,7 @@ def remover_filme(filme_id):
         flash(f"Filme {filme_id} removido com sucesso.", "success")
     else:
         flash("Filme não encontrado.", "danger")
-    return redirect(url_for('filmes'))  # Redireciona para a página principal
+    return redirect(request.referrer)  # Redireciona para a página principal
 
 @app.route('/adicionar_preferencia', methods=['POST'])
 

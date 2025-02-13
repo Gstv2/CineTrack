@@ -20,7 +20,20 @@
         text-align: center;
         padding: 10px 0;
     }
-    
+
+    .card {
+        height: 100%; /* Faz com que todos os cards tenham a mesma altura */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card img {
+        height: 300px; /* Ajuste conforme necessário */
+        object-fit: cover; /* Garante que a imagem se ajuste sem distorcer */
+        width: 100%; /* Garante que a imagem ocupe toda a largura do card */
+    }
+
+        
     .rating {
         direction: rtl;
         display: inline-block;
@@ -67,6 +80,19 @@
 
     .btn-add:hover {
         background-color: #2eef61;
+    }
+
+    .filmes-scroll {
+        max-height: 870px; /* Ajuste conforme necessário */
+        overflow-y: auto;
+        
+        /* Ocultar a scrollbar em todos os navegadores */
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* Internet Explorer e Edge */
+    }
+
+    .filmes-scroll::-webkit-scrollbar {
+        display: none; /* Chrome, Safari e Opera */
     }
 
 </style>
@@ -189,7 +215,6 @@
             {% endif %}
         </div>
         
-        <!-- Filmes -->
         <div class="col-md-9">
             <h3>Filmes</h3>
             {% if filmes_filtrados == [] %}
@@ -197,56 +222,67 @@
                     Nenhum filme encontrado.
                 </div>
             {% else %}
-                <div class="row">
-                    {% for filme in filmes_filtrados %}
-                        <div class="col-md-3     mb-2">
-                            <div class="card">
-                                <!-- A imagem ocupa toda a área do card -->
-                                <a href="#" data-toggle="modal" data-target="#modalFilme{{ filme.id }}">
-                                    <img src="{{ filme.imagem }}" class="card-img-top" alt="{{ filme.nome }}">
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- Modal de especificações do filme -->
-                        <div class="modal fade" id="modalFilme{{ filme.id }}" tabindex="-1" role="dialog" aria-labelledby="modalFilmeLabel{{ filme.id }}" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
+                <div class="filmes-scroll"> <!-- Adicionando a classe para scroll -->
+                    <div class="row">
+                        {% for filme in filmes_filtrados %}
+                            <div class="col-md-3 mb-2">
+                                <div class="card d-flex flex-column">
+                                    <a href="#" data-toggle="modal" data-target="#modalFilme{{ filme.id }}">
                                         <img src="{{ filme.imagem }}" class="card-img-top" alt="{{ filme.nome }}">
-                                    </div>
-                                    <div class="modal-body">    
-                                        <p><strong>Titulo:</strong> {{ filme.nome }}</p>
-                                        <p><strong>Sinopse:</strong> {{ filme.descricao }}</p>
-                                        <p><strong>Ano Lançado:</strong> {{ filme.ano }}</p>
-                                        <p><strong>Gênero:</strong> {{ filme.genero }}</p>
-                                        
-                                        <!-- Exibir a média das avaliações -->
-                                        <p><strong>Média das Avaliações:</strong> {{ filme.classificacao }} / 5</p>
-
-                                        <!-- Formulário para avaliar o filme -->
-                                        <form name="Avaliar" action="/avaliar_filme/{{ filme.id }}" method="POST">
-                                            <div class="form-group">
-                                                <label for="avaliacao">Avaliar filme:</label>
-                                                <div class="rating">
-                                                    <input type="radio" name="rating" value="5" id="star5{{ filme.id }}"><label for="star5{{ filme.id }}">★</label>
-                                                    <input type="radio" name="rating" value="4" id="star4{{ filme.id }}"><label for="star4{{ filme.id }}">★</label>
-                                                    <input type="radio" name="rating" value="3" id="star3{{ filme.id }}"><label for="star3{{ filme.id }}">★</label>
-                                                    <input type="radio" name="rating" value="2" id="star2{{ filme.id }}"><label for="star2{{ filme.id }}">★</label>
-                                                    <input type="radio" name="rating" value="1" id="star1{{ filme.id }}"><label for="star1{{ filme.id }}">★</label>
+                                    </a>
+                                </div>
+                            </div>
+        
+                            <!-- Modal de especificações do filme -->
+                            <div class="modal fade" id="modalFilme{{ filme.id }}" tabindex="-1" role="dialog" 
+                                 aria-labelledby="modalFilmeLabel{{ filme.id }}" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <img src="{{ filme.imagem }}" class="card-img-top" alt="{{ filme.nome }}">
+                                        </div>
+                                        <div class="modal-body">    
+                                            <p><strong>Titulo:</strong> {{ filme.nome }}</p>
+                                            <p><strong>Sinopse:</strong> {{ filme.descricao }}</p>
+                                            <p><strong>Ano Lançado:</strong> {{ filme.ano }}</p>
+                                            <p><strong>Gênero:</strong> {{ filme.genero }}</p>
+                                            <p><strong>Média das Avaliações:</strong> {{ filme.classificacao }} / 5</p>
+        
+                                            <!-- Formulário para avaliar o filme -->
+                                            <form name="Avaliar" action="/avaliar_filme/{{ filme.id }}" method="POST">
+                                                <div class="form-group">
+                                                    <label for="avaliacao">Avaliar filme:</label>
+                                                    <div class="rating">
+                                                        <input type="radio" name="rating" value="5" id="star5{{ filme.id }}">
+                                                        <label for="star5{{ filme.id }}">★</label>
+                                                        <input type="radio" name="rating" value="4" id="star4{{ filme.id }}">
+                                                        <label for="star4{{ filme.id }}">★</label>
+                                                        <input type="radio" name="rating" value="3" id="star3{{ filme.id }}">
+                                                        <label for="star3{{ filme.id }}">★</label>
+                                                        <input type="radio" name="rating" value="2" id="star2{{ filme.id }}">
+                                                        <label for="star2{{ filme.id }}">★</label>
+                                                        <input type="radio" name="rating" value="1" id="star1{{ filme.id }}">
+                                                        <label for="star1{{ filme.id }}">★</label>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <button type="submit" class="btn btn-avaliar">Avaliar</button>
-                                        </form>
+                                                <button type="submit" class="btn btn-avaliar">Avaliar</button>
+                                            </form>
+        
+                                            {% if user.admin %}
+                                                <form action="{{ url_for('remover_filme', filme_id=filme.id) }}" method="POST">
+                                                    <button type="submit" class="btn btn-remover">Remover Filme</button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                         {% endfor %}
                     </div>
                 </div>
             {% endif %}
         </div>
+        
 </div>
 
 {% endblock %}
